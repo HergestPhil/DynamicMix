@@ -1,0 +1,34 @@
+[% PROCESS settings/header.html %]
+[% WRAPPER setting title="PLUGIN_DYNAMICMIX" desc="" %]	<div class="prefDesc">[% "PLUGIN_DYNAMICMIX_DESC" | string %]<br><br></div>[% END %]
+	[% WRAPPER settingSection %]
+		[% WRAPPER settingGroup title="PLUGIN_DYNAMICMIX_STYLE" desc="PLUGIN_DYNAMICMIX_STYLEDESC" %]
+			<input type="text" class="stdedit sliderInput_0_200_1" name="pref_style" id="style" value="[% prefs.style %]" size="5">
+		[% END %]
+		[% WRAPPER settingGroup title="PLUGIN_DYNAMICMIX_VARIETY" desc="PLUGIN_DYNAMICMIX_VARIETYDESC" %]
+			<input type="text" class="stdedit sliderInput_0_9_1" name="pref_variety" id="variety" value="[% prefs.variety %]" size="5">
+		[% END %]
+		[% WRAPPER settingGroup title="PLUGIN_DYNAMICMIX_GENRE" desc="PLUGIN_DYNAMICMIX_GENREDESC" %]	
+			<input type="checkbox" [% IF prefs.restrictgenre %]checked [% END %] class="stdedit" name="pref_restrictgenre" id="restrictgenre" value="1"/>
+			<label for="enabled" class="stdlabel">[% "PLUGIN_DYNAMICMIX_GENRE" | string %]</label>
+		[% END %]
+		[% WRAPPER settingGroup title="PLUGIN_DYNAMICMIX_RECIPE" desc="PLUGIN_DYNAMICMIX_RECIPEDESC" %]
+			<select class="stdedit" name="pref_recipe" id="recipe">
+				[% FOREACH recipe IN recipes %]
+				<option [% IF prefs.recipe == recipe %]selected [% END %]value="[% recipe %]">[% recipe %]</option>
+				[%- END -%]
+			</select>
+		[% END %]
+		[% WRAPPER settingGroup title="PLUGIN_DYNAMICMIX_FILTER" desc="PLUGIN_DYNAMICMIX_FILTER_DESC" %]
+			<select class="stdedit" name="pref_filter" id="filter">
+				[% FOREACH filter IN filters %]
+				<option [% IF prefs.filter == filter %]selected [% END %]value="[% filter %]">[% filter %]</option>
+				[%- END -%]
+			</select>
+		[% END %]
+		<HR>
+		[% WRAPPER settingGroup title="PLUGIN_DYNAMICMIX_REMEMBER_TRACKS" desc="PLUGIN_DYNAMICMIX_REMEMBER_TRACKS_DESC" %]
+			<input type="text" class="stdedit sliderInput_0_20_5" name="pref_maxremembertracks" id="maxremembertracks" value="[% prefs.maxremembertracks %]" size="5">
+		[% END %]
+	[% END %]
+	<BR><A HREF="http://www.hergest.demon.co.uk/Music/music.shtml">DynamicMix</A>- This plugin is for your own personal, non-commercial use.</BR>
+[% PROCESS settings/footer.html %]

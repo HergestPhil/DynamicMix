@@ -1,0 +1,18 @@
+<?xml version='1.0' standalone='yes'?>
+<extension>
+  <name>PLUGIN_DYNAMICMIX</name>
+  <creator>Philip Meyer</creator>
+  <defaultState>enabled</defaultState>
+  <description>PLUGIN_DYNAMICMIX_DESC</description>
+  <email>phil@hergest.demon.co.uk</email>
+  <module>Plugins::DynamicMix::Plugin</module>
+  <homepageURL>http://www.hergest.demon.co.uk/Music/music.shtml</homepageURL>
+  <optionsURL>plugins/DynamicMix/settings/basic.html</optionsURL>
+  <targetApplication>
+    <id>SlimServer</id>
+    <minVersion>7.4</minVersion>
+    <maxVersion>*</maxVersion>
+  </targetApplication>
+  <type>2</type>
+  <version>1.3</version>
+</extension>

@@ -1,0 +1,50 @@
+PLUGIN_DYNAMICMIX
+	EN	Dynamic Mix
+PLUGIN_DYNAMICMIX_DESC
+	EN	Extension for Dynamic Playlist, using MusicIP to produce mixes.
+PLUGIN_DYNAMICMIX_REDIRECT
+	EN	Mix settings are per player.  See Player Settings to configure them.
+PLUGIN_DYNAMICMIX_PLAYER
+	EN	Per Player Settings
+PLUGIN_DYNAMICMIX_PLAYERDESC
+	EN	See Extras Menu
+PLUGIN_DYNAMICMIX_NAME
+	EN	Dynamic Mix Settings
+PLUGIN_DYNAMICMIX_ENABLE
+	EN	Enable Dynamic Mix
+PLUGIN_DYNAMICMIX_STYLE
+	EN	How much Mix Style
+PLUGIN_DYNAMICMIX_STYLEDESC
+	EN	How much like the artist style (0=Ignore, 200=Strict)
+PLUGIN_DYNAMICMIX_VARIETY
+	EN	How much Mix Variety
+PLUGIN_DYNAMICMIX_VARIETYDESC
+	EN	How much variety in the mix (0=Less, 9=More)
+PLUGIN_DYNAMICMIX_RECIPE
+	EN	Available MIP Recipes
+PLUGIN_DYNAMICMIX_RECIPEDESC
+	EN	Use the indicated recipe when making the mix.
+PLUGIN_DYNAMICMIX_REMEMBER_TRACKS
+	EN	Remember This Many Played Tracks 
+PLUGIN_DYNAMICMIX_REMEMBER_TRACKS_DESC
+	EN	Store previously played tracks to ensure no track duplication within this count.
+PLUGIN_DYNAMICMIX_FILTER
+	EN	Use MusicIP Filter Mixing
+PLUGIN_DYNAMICMIX_FILTERDESC
+	EN	Create filters in MusicIP and then select to apply filter to mixes.
+PLUGIN_DYNAMICMIX_GENRE
+	EN	Restrict Mixing to Genre of Seed Track
+PLUGIN_DYNAMICMIX_GENREDESC
+	EN	Will request same Genre as seed track, depending on your library may impair mixing
+PLUGIN_DYNAMICMIX_JIVE_STYLE
+	EN	Style (0=Ignore, 200=Strict)
+PLUGIN_DYNAMICMIX_JIVE_VARIETY
+	EN	Variety (0=Less, 9=More)
+PLUGIN_DYNAMICMIX_JIVE_GENRE
+	EN	Restrict Genre
+PLUGIN_DYNAMICMIX_JIVE_RECIPE
+	EN	Recipe
+PLUGIN_DYNAMICMIX_JIVE_FILTER
+	EN	Filter
+PLUGIN_DYNAMICMIX_JIVE_REMEMBER_TRACKS
+	EN	Avoid Dup Tracks 
