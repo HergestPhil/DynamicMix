@@ -1,1 +1,1 @@
-"# DynamicMix" 
+# DynamicMix
