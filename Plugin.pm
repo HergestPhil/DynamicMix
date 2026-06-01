@@ -48,6 +48,7 @@ my $log = Slim::Utils::Log->addLogCategory({
 	'description'  => 'PLUGIN_DYNAMICMIX',
 });
 
+use constant DYNAMICMIX_SETTINGS_MENU => 'DynamicMix.PlayerSettingsMenu';
 
 sub initPlugin {
 	my $class = shift;
@@ -329,6 +330,75 @@ sub setMode {
 	Slim::Buttons::Common::popMode($client);
 		return;
 	}
+	
+	DisplaySBPrefs($client);
+}
+
+sub DisplaySBPrefs {
+	my $client = shift;
+
+	$log->debug('DynamicMix: DisplaySBPrefs');
+
+	my @options = ('Filter');
+
+	my %params =
+	(
+		header => '{PLUGIN_DYNAMICMIX_NAME} {count}',
+		listRef => \@options,
+		modeName => DYNAMICMIX_SETTINGS_MENU,
+		parentMode => Slim::Buttons::Common::mode($client),
+
+		onPlay => sub {
+			my ($client, $name) = @_;
+			$log->debug("DynamicMix: $name selected");
+		},
+
+		onRight => sub {
+			my ($client, $name) = @_;
+			$log->debug("DynamicMix: $name selected");
+			if ($name eq 'Filter') {
+				setFilterMode($client);
+			}
+		},
+
+		# These are all menu items and so have a right-arrow overlay
+		overlayRef => sub {
+			my $client = shift; 
+			return [ undef, $client->symbols('rightarrow') ];
+		}
+	);
+
+	Slim::Buttons::Common::pushModeLeft($client, 'INPUT.Choice', \%params);
+}
+
+sub setFilterMode {
+	my $client = shift;
+
+	my $currentFilter = $prefs->client($client)->get('filter');
+	my $filters = Plugins::DynamicMix::PlayerSettings->getFilterList();
+
+	my %params = (
+		'header'         => "Current Filter: " . $currentFilter, #Need to add a localisation string
+		'listRef'        => $filters,
+		'headerAddCount' => 1,
+		'overlayRef'     => sub {return (undef, $client->symbols('rightarrow'));},
+		'callback'       => sub {
+			my $client = shift;
+			my $method = shift;
+
+			if ($method eq 'right') {
+				my $valueref = $client->modeParam('valueRef');
+				$log->debug("DynamicMix: selected filter $$valueref");
+				$prefs->client($client)->set('filter', $$valueref);
+				Slim::Buttons::Common::popModeRight($client);
+			}
+			elsif ($method eq 'left') {
+				Slim::Buttons::Common::popModeRight($client);
+			}
+		},
+	);
+
+	Slim::Buttons::Common::pushModeLeft($client, 'INPUT.List', \%params);
 }
 
 sub getDisplayText {
