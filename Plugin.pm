@@ -50,7 +50,6 @@ my $log = Slim::Utils::Log->addLogCategory({
 
 use constant DYNAMICMIX_SETTINGS_MENU => 'DynamicMix.PlayerSettingsMenu';
 
-
 sub initPlugin {
 	my $class = shift;
 	my $client = shift;
@@ -332,7 +331,7 @@ sub setMode {
 		return;
 	}
 
-  DisplaySBPrefs($client);
+	DisplaySBPrefs($client);
 }
 
 sub DisplaySBPrefs {
