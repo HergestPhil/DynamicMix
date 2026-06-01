@@ -48,6 +48,8 @@ my $log = Slim::Utils::Log->addLogCategory({
 	'description'  => 'PLUGIN_DYNAMICMIX',
 });
 
+use constant DYNAMICMIX_SETTINGS_MENU => 'DynamicMix.PlayerSettingsMenu';
+
 
 sub initPlugin {
 	my $class = shift;
@@ -329,6 +331,75 @@ sub setMode {
 	Slim::Buttons::Common::popMode($client);
 		return;
 	}
+
+  DisplaySBPrefs($client);
+}
+
+sub DisplaySBPrefs {
+	my $client = shift;
+
+	$log->debug('DynamicMix: DisplaySBPrefs');
+
+	my @options = ('Filter');
+
+	my %params =
+	(
+		header => '{PLUGIN_DYNAMICMIX_NAME} {count}',
+		listRef => \@options,
+		modeName => DYNAMICMIX_SETTINGS_MENU,
+		parentMode => Slim::Buttons::Common::mode($client),
+
+		onPlay => sub {
+			my ($client, $name) = @_;
+			$log->debug("DynamicMix: $name selected");
+		},
+
+		onRight => sub {
+			my ($client, $name) = @_;
+			$log->debug("DynamicMix: $name selected");
+			if ($name eq 'Filter') {
+				setFilterMode($client);
+			}
+		},
+
+		# These are all menu items and so have a right-arrow overlay
+		overlayRef => sub {
+			my $client = shift; 
+			return [ undef, $client->symbols('rightarrow') ];
+		}
+	);
+
+	Slim::Buttons::Common::pushModeLeft($client, 'INPUT.Choice', \%params);
+}
+
+sub setFilterMode {
+	my $client = shift;
+
+	my $currentFilter = $prefs->client($client)->get('filter');
+	my $filters = Plugins::DynamicMix::PlayerSettings->getFilterList();
+
+	my %params = (
+		'header'         => "Current Filter: " . $currentFilter, #Need to add a localisation string
+		'listRef'        => $filters,
+		'headerAddCount' => 1,
+		'overlayRef'     => sub {return (undef, $client->symbols('rightarrow'));},
+		'callback'       => sub {
+			my $client = shift;
+			my $method = shift;
+
+			if ($method eq 'right') {
+				my $valueref = $client->modeParam('valueRef');
+				$log->debug("DynamicMix: selected filter $$valueref");
+				$prefs->client($client)->set('filter', $$valueref);
+				Slim::Buttons::Common::popModeRight($client);
+			}
+			elsif ($method eq 'left') {
+				Slim::Buttons::Common::popModeRight($client);
+			}
+		},
+	);
+
+	Slim::Buttons::Common::pushModeLeft($client, 'INPUT.List', \%params);
 }
 
 sub getDisplayText {
@@ -395,8 +466,8 @@ sub commandCallback {
 	}
 
 	if ($request->isCommand([['playlist'], ['newsong']])) {
-		if (isDynamicPlaylistActive($client)) {
-			$log->debug("DynamicMix: newsong cmd received with active Dynamic Playlist");
+		if (isDynamicMixPlaying($client)) {
+			$log->debug("DynamicMix: newsong cmd received with active dynamic mix in Dynamic Playlist");
 			return;
 		}
 	}
@@ -428,8 +499,9 @@ sub SaveTrackHistory {
 
 	if (grep { $_ eq $trackPath} @trackarray) {
 		$log->info("Track Already in Array: $trackPath");
-   } else {
-   	# shuffle history tracks down one position
+	}
+	else {
+		# shuffle history tracks down one position
 		my $tracknumber = $rememberedtracks;
 		if ($tracknumber >= $maxRememberTracks) {
 			$tracknumber = $maxRememberTracks-1;
@@ -584,24 +656,25 @@ sub SendtoMIPSync {
 	return 0; 
 }
 
-sub isDynamicPlaylistActive {
+sub isDynamicMixPlaying {
+	# DPL 'isActive' server log messages relate to the mix status which plugins such as DSTM query
 	my $client = shift;
 
 	my $playlist = undef;
-	if(UNIVERSAL::can("Plugins::DynamicPlayList::Plugin","getCurrentPlayList")) {
+	if(UNIVERSAL::can("Plugins::DynamicPlaylists4::Plugin","getCurrentPlayList")) {
 		no strict 'refs';
-		$playlist = eval { &{"Plugins::DynamicPlayList::Plugin::getCurrentPlayList"}($client) };
+		$playlist = eval { &{"Plugins::DynamicPlaylists4::Plugin::getCurrentPlayList"}($client) };
 		if ($@) {
-			$log->error("Error calling DynamicPlaylist plugin: $@\n");
+			$log->error("Error calling DynamicPlaylists4 plugin: $@\n");
 		}
 		use strict 'refs';
 	}
 
 	if (defined($playlist) && $playlist =~ /^dynamicmix/) {
-		$log->debug("DynamicPlaylist is active");
+		$log->debug("DynamicPlaylists4 is playing dynamic mix");
 		return 1;
 	} else {
-		$log->debug("DynamicPlaylist not active");
+		$log->debug("DynamicPlaylists4 not playing dynamic mix");
 		return 0;
 	}
 }
@@ -620,14 +693,14 @@ sub getMoodsList {
 	return $moods;
 }
 
-sub getDynamicPlayLists {
+sub getDynamicPlaylists {
 	my ($client) = @_;
 	my @result = ();
 
-	$log->debug("getDynamicPlayLists");
-
 	my $moods = getMoodsList();
 	$log->info("moods=$moods");
+
+	# Put dynamic playlists in a dedicated "Dynamic Mix" group
 
 	my %dynamicMixes = (
 		'dynamicmix' => {
@@ -636,13 +709,13 @@ sub getDynamicPlayLists {
 			'id' => 'dynamicmix',
 			'name' => string('PLUGIN_DYNAMICMIX'),
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Songs']],
+			'groups' => [['Dynamic Mix'], ['Songs']],
 		},
 		'dynamicmixartist' => {
 			'id' => 'dynamicmixartist',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Artist',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Artists']],
+			'groups' => [['Dynamic Mix'], ['Artists']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -655,7 +728,7 @@ sub getDynamicPlayLists {
 			'id' => 'dynamicmixalbum',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Album',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Albums']],
+			'groups' => [['Dynamic Mix'], ['Albums']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -668,7 +741,7 @@ sub getDynamicPlayLists {
 			'id' => 'dynamicmixtrack',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Track',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Songs']],
+			'groups' => [['Dynamic Mix'], ['Songs']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -681,7 +754,7 @@ sub getDynamicPlayLists {
 			'id' => 'dynamicmixgenre',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Genre',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Genres']],
+			'groups' => [['Dynamic Mix'], ['Genres']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -694,7 +767,7 @@ sub getDynamicPlayLists {
 			'id' => 'dynamicmixmood',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Mood',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Playlists'], ['Songs']],
+			'groups' => [['Dynamic Mix'], ['Songs']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -709,16 +782,15 @@ sub getDynamicPlayLists {
 	return \%dynamicMixes;
 }
 
-sub getNextDynamicPlayListTracks {
+sub getNextDynamicPlaylistTracks {
 	my ($client,$dynamicplaylist,$limit,$offset,$parameters) = @_;
 
 	my $seed = '';
-	my @result = ();
 
-	$log->info("getNextDynamicPlayListTracks offset=$offset");
+	$log->info("getNextDynamicPlaylistTracks offset=$offset");
 
 	my $dynamicplaylistId = $dynamicplaylist->{id};
-	$log->info("getNextDynamicPlayListTracks type $dynamicplaylistId");
+	$log->info("getNextDynamicPlaylistTracks type $dynamicplaylistId");
 
 	# If this isn't the first time
  	if (!$offset) {
@@ -728,7 +800,7 @@ sub getNextDynamicPlayListTracks {
 			$log->info("use artist for seed");
 
 			my $artistId = $parameters->{1}->{'value'};
-			$log->info("getNextDynamicPlayListTracks for artist id $artistId");
+			$log->info("getNextDynamicPlaylistTracks for artist id $artistId");
 			my $artist = Slim::Schema->find(Contributor => $artistId );
 			$log->info("Found artist, getting artist name");
 			my $name = $artist->name;
@@ -741,7 +813,7 @@ sub getNextDynamicPlayListTracks {
 			$log->info("use album for seed");
 
 			my $albumId = $parameters->{1}->{'value'};
-			$log->info("getNextDynamicPlayListTracks param 1=$albumId");
+			$log->info("getNextDynamicPlaylistTracks param 1=$albumId");
 			my $album = Slim::Schema->find(Album => $albumId);
 			my $title = $album->title;
 			$log->info("use album '$title' for seed");
@@ -759,7 +831,7 @@ sub getNextDynamicPlayListTracks {
 			$log->info("use song for seed");
 
 			my $trackId = $parameters->{1}->{'value'};
-			$log->info("getNextDynamicPlayListTracks param 1=$trackId");
+			$log->info("getNextDynamicPlaylistTracks param 1=$trackId");
 
 			my $track = Slim::Schema->find(Track => $trackId);
 			my $title = $track->title;
@@ -792,7 +864,7 @@ sub getNextDynamicPlayListTracks {
 			# Base mix on currently playing song
 			$log->info("use current song, otherwise no seed");
 
-			my $currentSongTrack = Slim::Player::Playlist::song($client);
+			my $currentSongTrack = Slim::Player::Playlist::track($client);
 			if (defined($currentSongTrack)) {
 				$log->info("currently playing song url is " . $currentSongTrack->url);
 				if (Slim::Music::Info::isFileURL($currentSongTrack->url)) {
@@ -832,6 +904,9 @@ sub getNextDynamicPlayListTracks {
 
 	$#unique = -1; 					# Finished with our Unique Tracks Array, wipe it for reuse
 
+	my @idList = ();
+	my %idListCompleteInfo = ();
+
 	if (!defined $track) {
 		$log->info("Choosing a random song");
 		my $randomFunc = Slim::Utils::OSDetect->getOS()->sqlHelperClass()->randomFunction();
@@ -848,12 +923,20 @@ sub getNextDynamicPlayListTracks {
 		SaveTrackHistory($client, $trackPath);
 
 		# Add new song retreived from MusicIP
-		push @result, $track;
+		## Dynamic Playlists 4 expects an array of track IDs.
+		## for LMS balanced shuffling support pass a hash with the primary_artist ids
+		my $id = $track->id;
+		push @idList, $id;
+
+		$idListCompleteInfo{$id}{'id'} = $id;
+		$idListCompleteInfo{$id}{'primary_artist'} = $track->primary_artist if $track->primary_artist;
+
+		return \@idList, \%idListCompleteInfo;
 	} else {
 		$log->error("Couldn't find a track to play next");
 	}
 
-	return \@result; 
+	return \@idList, \%idListCompleteInfo;
 }
 
 
