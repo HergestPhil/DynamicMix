@@ -50,6 +50,7 @@ my $log = Slim::Utils::Log->addLogCategory({
 
 use constant DYNAMICMIX_SETTINGS_MENU => 'DynamicMix.PlayerSettingsMenu';
 
+
 sub initPlugin {
 	my $class = shift;
 	my $client = shift;
@@ -331,7 +332,7 @@ sub setMode {
 		return;
 	}
 
-	DisplaySBPrefs($client);
+  DisplaySBPrefs($client);
 }
 
 sub DisplaySBPrefs {
@@ -714,8 +715,9 @@ sub getDynamicPlaylists {
 			'id' => 'dynamicmixartist',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Artist',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Dynamic Mix'], ['Artists']],
-			'parameters' => {
+			'menulisttype' => 'contextmenu',
+			'playlistcategory' => 'artists',
+ 			'parameters' => {
 				1 => {
 					'id' => 1,
 					'type' => 'artist',
@@ -727,7 +729,8 @@ sub getDynamicPlaylists {
 			'id' => 'dynamicmixalbum',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Album',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Dynamic Mix'], ['Albums']],
+			'menulisttype' => 'contextmenu',
+			'playlistcategory' => 'albums',
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -753,7 +756,8 @@ sub getDynamicPlaylists {
 			'id' => 'dynamicmixgenre',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Genre',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Dynamic Mix'], ['Genres']],
+			'menulisttype' => 'contextmenu',
+			'playlistcategory' => 'genres',
 			'parameters' => {
 				1 => {
 					'id' => 1,
