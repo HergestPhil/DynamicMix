@@ -95,6 +95,51 @@ sub initPlugin {
 	Slim::Control::Request::addDispatch(['dynamicmix','setting'], [1, 0, 1, \&jiveDynamicMixSetting]);
 }
 
+sub postinitPlugin {
+    Slim::Menu::TrackInfo->registerInfoProvider( dynamicmixseedtrack => (
+        after => 'favorites',
+        func => sub {
+            return objectInfoHandler(@_);
+        },
+    ));
+}
+
+sub objectInfoHandler {
+    my ($client, $url, $obj, $remoteMeta, $tags) = @_;
+    $tags ||= {};
+
+    return if !$client;
+    my $trackId = $obj->id;
+
+    return {
+        type => 'redirect',
+        jive => $tags->{menuMode} ? {
+            actions => {
+                go => {
+                    player => 0,
+                    cmd => ['dynamicplaylist', 'playlist', 'play'],
+                    params => {
+                        playlistid => 'dynamicmixtrack',
+                        dynamicplaylist_parameter_1 => $trackId,
+                    },
+                },
+            },
+        } : {},
+        name => 'Play ' . string('PLUGIN_DYNAMICMIX'),
+        favorites => 0,
+        player => {
+            mode => 'PLUGIN.DynamicPlaylists4.Mixer',
+            modeParams => {
+                'dynamicplaylist_parameter_1' => { id => $trackId },
+                'playlisttype' => 'dynamicmixtrack',
+            },
+        },
+        web => {
+            url => 'plugins/DynamicPlaylists4/dynamicplaylist_mix.html?type=dynamicmixtrack&dynamicplaylist_parameter_1='.$trackId.'&addOnly=0',
+        },
+    };
+}
+
 sub jiveDynamicMixMenu {
 	$log->debug("Entering jiveDynamicMixMenu");
 
@@ -743,7 +788,8 @@ sub getDynamicPlaylists {
 			'id' => 'dynamicmixtrack',
 			'name' => string('PLUGIN_DYNAMICMIX') . ' Track',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Dynamic Mix'], ['Songs']],
+			'menulisttype' => 'contextmenu',
+			'playlistcategory' => 'tracks',
 			'parameters' => {
 				1 => {
 					'id' => 1,
