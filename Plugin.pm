@@ -754,7 +754,21 @@ sub getDynamicPlaylists {
 			'id' => 'dynamicmix',
 			'name' => string('PLUGIN_DYNAMICMIX'),
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Dynamic Mix'], ['Songs']],
+			'groups' => [['Music IP'], ['Songs']],
+		},
+		'dynamicmixmood' => {
+			'id' => 'dynamicmixmood',
+			'name' => string('PLUGIN_DYNAMICMIX') . ' Mood',
+			'url' => 'plugins/DynamicMix/settings/basic.html?',
+			'groups' => [['Music IP'], ['Songs']],
+			'parameters' => {
+				1 => {
+					'id' => 1,
+					'type' => 'list',
+					'definition' => $moods,
+					'name' => 'Choose mood',
+				},
+			},
 		},
 		'dynamicmixartist' => {
 			'id' => 'dynamicmixartist',
@@ -762,6 +776,7 @@ sub getDynamicPlaylists {
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
 			'menulisttype' => 'contextmenu',
 			'playlistcategory' => 'artists',
+			'groups' => [['Music IP'], ['Songs']],
  			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -776,25 +791,12 @@ sub getDynamicPlaylists {
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
 			'menulisttype' => 'contextmenu',
 			'playlistcategory' => 'albums',
+			'groups' => [['Music IP'], ['Songs']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
 					'type' => 'album',
 					'name' => 'Choose album',
-				},
-			},
-		},
-		'dynamicmixtrack' => {
-			'id' => 'dynamicmixtrack',
-			'name' => string('PLUGIN_DYNAMICMIX') . ' Track',
-			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'menulisttype' => 'contextmenu',
-			'playlistcategory' => 'tracks',
-			'parameters' => {
-				1 => {
-					'id' => 1,
-					'type' => 'track',
-					'name' => 'Choose track',
 				},
 			},
 		},
@@ -804,6 +806,7 @@ sub getDynamicPlaylists {
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
 			'menulisttype' => 'contextmenu',
 			'playlistcategory' => 'genres',
+			'groups' => [['Music IP'], ['Songs']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
@@ -812,17 +815,18 @@ sub getDynamicPlaylists {
 				},
 			},
 		},
-		'dynamicmixmood' => {
-			'id' => 'dynamicmixmood',
-			'name' => string('PLUGIN_DYNAMICMIX') . ' Mood',
+		'dynamicmixtrack' => {
+			'id' => 'dynamicmixtrack',
+			'name' => string('PLUGIN_DYNAMICMIX') . ' Track',
 			'url' => 'plugins/DynamicMix/settings/basic.html?',
-			'groups' => [['Dynamic Mix'], ['Songs']],
+			'menulisttype' => 'contextmenu',
+			'playlistcategory' => 'songs',
+			'groups' => [['Music IP'], ['Songs']],
 			'parameters' => {
 				1 => {
 					'id' => 1,
-					'type' => 'list',
-					'definition' => $moods,
-					'name' => 'Choose mood',
+					'type' => 'track',
+					'name' => 'Choose track',
 				},
 			},
 		},
